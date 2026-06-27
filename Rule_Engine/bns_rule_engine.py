@@ -19,7 +19,10 @@ THREAT_VERBS = [
 ]
 FRAUD_VERBS = [
     "cheated", "cheat", "defrauded", "fraud", "misled",
-    "tricked", "deceived", "lied", "false promise", "promised"
+    "tricked", "deceived", "lied", "false promise", "promised",
+    "impersonated", "impersonate", "duped", "forged", "fake", "scam",
+    "otp", "link", "debited", "transferred", "invested", "withdrawn",
+    "claimed", "claiming", "pose", "posing", "scheme", "fabricated"
 ]
 GRIEVOUS_VERBS = [
     "stabbed", "stab", "shot", "chopped", "acid",
@@ -358,11 +361,21 @@ def check_theft(facts: FactsAccessor, calc: ConfidenceCalculator) -> RuleResult:
         failed_conditions = []
         clarification_questions = []
     else:
-        confidence = 0.0
-        explanation = "Conditions not met for theft."
-        triggered_conditions = []
-        failed_conditions = failed
-        clarification_questions = ["What type of property was involved?"] if not c1 else []
+        if c1 and c3 and c4 and facts.consent_given() == "unknown":
+            status = "needs_clarification"
+            confidence = 0.0
+            explanation = "Suspected Theft (BNS 303), but consent status is unknown. Clarification is required."
+            triggered_conditions = triggered
+            failed_conditions = ["No consent given by victim"]
+            clarification_questions = [
+                "Did you hand over the property voluntarily, or was it taken from you without permission?"
+            ]
+        else:
+            confidence = 0.0
+            explanation = "Conditions not met for theft."
+            triggered_conditions = []
+            failed_conditions = failed
+            clarification_questions = ["What type of property was involved?"] if not c1 else []
 
     punishment = "Up to 3 years imprisonment and/or fine."
 
@@ -449,11 +462,21 @@ def check_robbery(facts: FactsAccessor, calc: ConfidenceCalculator) -> RuleResul
         failed_conditions = []
         clarification_questions = []
     else:
-        confidence = 0.0
-        explanation = "Conditions not met for robbery."
-        triggered_conditions = []
-        failed_conditions = failed
-        clarification_questions = ["What type of property was involved?"] if not c1 else []
+        if c1 and c3 and c4 and facts.consent_given() == "unknown":
+            status = "needs_clarification"
+            confidence = 0.0
+            explanation = "Suspected Robbery (BNS 304), but consent status is unknown. Clarification is required."
+            triggered_conditions = triggered
+            failed_conditions = ["No consent given by victim"]
+            clarification_questions = [
+                "Did you hand over the property voluntarily, or was it taken from you without permission?"
+            ]
+        else:
+            confidence = 0.0
+            explanation = "Conditions not met for robbery."
+            triggered_conditions = []
+            failed_conditions = failed
+            clarification_questions = ["What type of property was involved?"] if not c1 else []
 
     punishment = "Up to 10 years rigorous imprisonment and fine."
 
@@ -687,7 +710,7 @@ def check_cheating(facts: FactsAccessor, calc: ConfidenceCalculator) -> RuleResu
     status = "applicable" if applicable else "not_applicable"
     clarification_questions = []
 
-    if facts.consent_given() == "unknown":
+    if not applicable and c1 and c4 and facts.consent_given() == "unknown":
         status = "needs_clarification"
         clarification_questions = [
             "Did you hand over the money or property voluntarily, or was it taken from you without permission?"
