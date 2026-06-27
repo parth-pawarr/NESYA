@@ -1,0 +1,413 @@
+Neuro-Symbolic FIR Assistance System (NSFAS)
+1. Vision Statement
+To develop an AI-powered decision-support system that assists police officers in drafting legally accurate,
+explainable, and structured FIRs by combining Natural Language Understanding with Symbolic Legal
+Reasoning.
+The system will not replace human judgment. Instead, it will act as an intelligent legal assistant that reduces
+drafting effort, improves consistency, and provides explainable recommendations for applicable IPC/BNS
+sections.
+2. Problem Statement
+Current FIR drafting faces several challenges:
+Manual Interpretation
+Officers must manually interpret victim statements and identify applicable legal sections.
+Knowledge Dependency
+Accuracy often depends on the experience and legal knowledge of the officer .
+Time Consumption
+Complex complaints require significant analysis before drafting.
+Lack of Standardization
+Similar incidents may be classified differently across officers.
+Explainability Gap
+Existing AI text-generation systems can generate content but often fail to justify why a legal section applies.
+3. Core Innovation
+The project combines:
+1Neural AI
+Used for:
+Speech Recognition
+Entity Extraction
+Event Detection
+Context Understanding
+Symbolic AI
+Used for:
+Legal Ontology
+Rule-based Reasoning
+Section Mapping
+Legal Explanations
+This hybrid architecture forms a true Neuro-Symbolic AI System.
+4. Primary Users
+User 1: Police Officer
+Responsibilities
+Review complaints
+Verify AI suggestions
+Edit FIR
+Finalize FIR
+User 2: Victim / Complainant
+Responsibilities
+Narrate incident
+Provide details
+Clarify missing information
+User 3: Administrator
+Responsibilities
+Update BNS rules
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+2Manage legal ontology
+Monitor system performance
+5. User Journey
+Phase 1: Complaint Submission
+Victim arrives.
+Option A: Voice Narration
+Example:
+Someone snatched my phone while I was boarding a bus near CBS Nashik.
+Option B: Text Narration
+Example:
+My neighbour threatened me and damaged my motorcycle.
+Phase 2: Neural Understanding Layer
+The system extracts:
+Entities
+Victim
+Accused
+Property
+Location
+Time
+Events
+Theft
+Assault
+Threat
+Fraud
+Harassment
+Context
+Intent
+Violence involved?
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+3Property involved?
+Financial loss?
+Phase 3: Clarification Engine
+If confidence is low, the system asks:
+Was physical force used?
+Was the accused known to you?
+Was property permanently taken?
+This creates a dynamic interview process.
+Phase 4: Legal Reasoning
+Knowledge Graph receives facts.
+Example:
+Phone
+↓
+Movable Property
+Taken Without Consent
+↓
+Theft Condition
+Theft Condition
+↓
+Applicable Section
+The Rule Engine performs inference.
+Phase 5: Section Recommendation
+Recommended SectionConfidence
+BNS Section X 91%
+BNS Section Y 84%
+• 
+• 
+• 
+• 
+• 
+4Phase 6: Explainability Layer
+Example:
+Section X was applied because the complaint indicates unauthorized removal of movable
+property without consent.
+Phase 7: FIR Draft Generation
+Generated Draft contains:
+Complainant Details
+Incident Description
+Legal Sections
+AI Reasoning Notes
+Phase 8: Officer Review
+Officer can:
+Accept
+Modify
+Remove Sections
+Add Sections
+Edit Narrative
+Phase 9: Final FIR Export
+Supported Formats:
+PDF
+DOCX
+JSON
+6. Functional Requirements
+FR-1 Speech Processing
+Input Languages
+Marathi
+Hindi
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+5English
+Output
+Text Transcript
+FR-2 Complaint Understanding
+Extract:
+People
+Locations
+Objects
+Actions
+Time
+FR-3 Event Classification
+Detect:
+Theft
+Assault
+Cyber Fraud
+Harassment
+Extortion
+Property Damage
+FR-4 Legal Ontology Engine
+Crime
+├── Theft
+├── Assault
+├── Fraud
+└── Cybercrime
+Mapped to:
+IPC
+BNS
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+6FR-5 Symbolic Rule Engine
+Example:
+IF
+Movable Property
+AND No Consent
+THEN
+Theft
+FR-6 Explainability Engine
+Must explain:
+Why a section was applied.
+Which facts triggered it.
+FR-7 FIR Draft Generator
+Generate:
+Formal FIR Structure
+Police-friendly Language
+7. Advanced Features
+These differentiate the system from typical college projects.
+Feature 1: Contradiction Detection
+Example:
+Victim says:
+He stole my bike.
+Later:
+I gave him the bike.
+• 
+• 
+• 
+• 
+7The system flags the contradiction.
+Feature 2: Missing Information Detection
+Example:
+My wallet was stolen.
+System asks:
+Approximate location?
+Date of incident?
+Feature 3: Legal Confidence Meter
+Example:
+Theft Section → 92%
+Robbery Section → 31%
+Feature 4: Alternative Section Suggestions
+Primary Recommendation
+Section A
+Possible Alternative
+Section B
+Feature 5: Reasoning Graph Visualization
+Fact
+↓
+Rule
+↓
+Section
+• 
+• 
+• 
+• 
+• 
+• 
+8Feature 6: FIR Quality Checker
+Checks:
+Missing Facts
+Ambiguity
+Incomplete Narratives
+Feature 7: Similar Case Retrieval (Future Scope)
+Example:
+87 similar theft complaints found.
+8. System Architecture
+Victim Input
+      ↓
+Speech-to-Text
+      ↓
+NLP Engine
+      ↓
+Entity Extraction
+      ↓
+Event Detection
+      ↓
+Knowledge Graph
+      ↓
+Rule Engine
+      ↓
+Legal Mapping
+      ↓
+Explanation Generator
+      ↓
+FIR Draft Generator
+      ↓
+Officer Review
+• 
+• 
+• 
+99. Knowledge Graph Design
+Entities
+Person
+Property
+Crime
+Location
+Evidence
+Legal Section
+Relations
+Committed
+Owns
+Damaged
+Stole
+Threatened
+OccurredAt
+ApplicableUnder
+10. Tech Stack
+Layer Technology
+Frontend React + Tailwind CSS
+Backend Python + FastAPI
+NLP spaCy + Transformers
+Deep Learning PyTorch
+Knowledge Graph Neo4j
+Ontology Protégé
+Rule Engine Python Rules Engine / Drools
+Database PostgreSQL
+Vector Database (Future)ChromaDB
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+1011. Model Strategy
+Plan A (Research Heavy)
+Build SLM From Scratch
+Pros
+Maximum Learning
+High Research Value
+Cons
+Huge Dataset Requirement
+Long Training Time
+Risky for Final Year Projects
+Recommendation: Not advised as primary plan.
+Plan B (Recommended)
+Use Existing SLMs:
+Gemma 3 (1B / 4B)
+Qwen 2.5 (3B)
+Phi-3 Mini
+SmolLM2
+Llama 3.2 (3B)
+Recommended Models
+Qwen 2.5 3B
+Phi-3 Mini
+Gemma 3 4B
+Fine-tune using:
+FIR Samples
+Legal Documents
+BNS Descriptions
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+1112. Success Metrics
+Metric Target
+Legal Section Accuracy85%
+FIR Draft Acceptance80%
+Explanation Correctness90%
+Response Time < 5 seconds
+13. Future Research Extensions
+Multi-agent Legal Reasoning
+Court Charge-sheet Generation
+Witness Statement Analysis
+Legal Chatbot
+RAG over Legal Corpus
+FIR-to-Charge-sheet Automation
+Real-time Police Station Deployment
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+12
