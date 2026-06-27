@@ -105,6 +105,12 @@ def test_online_fraud_no_violence():
     r = _run("online_fraud")
     assert r["INCIDENT"]["violence_involved"] is False
 
+
+def test_witness_named_phrase():
+    r = _run("witness_named_phrase")
+    assert "Amit Verma" in r["PEOPLE"]["witnesses"]
+
+
 def test_confidence_is_float():
     for key in NARRATIVES:
         r = _run(key)

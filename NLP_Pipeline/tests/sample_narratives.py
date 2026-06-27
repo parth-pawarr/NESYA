@@ -31,4 +31,10 @@ NARRATIVES = {
         "I have a screenshot of the transaction. The accused is unknown to me. "
         "I tried calling back but the number was switched off."
     ),
+
+    "witness_named_phrase": (
+        "On 12th September 2024, near a crowded market in Jaipur, a man "
+        "attacked me with a knife. There was a witness named Amit Verma who "
+        "saw the whole incident. He later gave his statement to the police."
+    ),
 }
