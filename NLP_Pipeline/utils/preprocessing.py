@@ -84,12 +84,19 @@ def extract_location(text: str) -> str | None:
     Returns the extracted snippet or None.
     """
     patterns = [
-        r"(?:near|at|in front of|outside|behind|inside|opposite)\s+([A-Z][^,.;]{3,40})",
+        r"(?:near|at|in front of|outside|behind|inside|opposite)\s+(?:his\s+|her\s+|my\s+|the\s+|a\s+|our\s+|their\s+)?(?:[a-z]{2,15}\s+)*(?:in|at|near|of)\s+([A-Z][a-zA-Z\s]{2,40})",
+        r"(?:near|at|in front of|outside|behind|inside|opposite)\s+([A-Z][a-zA-Z\s]{2,40})",
         r"(?:on|at)\s+([A-Z][a-zA-Z\s]+(?:road|street|lane|nagar|colony|chowk|bazaar|marg|highway))",
-        r"(?:in|at)\s+([A-Z][a-zA-Z\s]{2,30}(?:village|town|city|district|police station|area))",
+        r"(?:in|at)\s+([A-Z][a-zA-Z\s]{2,30}(?:village|town|city|district|police station|area|chawl|slum|building|complex)?)",
+        r"\b(?:in|at|near)\s+([A-Z][a-zA-Z]{2,30})\b",
     ]
     for pat in patterns:
-        m = re.search(pat, text)   # case-sensitive for proper nouns
+        m = re.search(pat, text)
         if m:
-            return m.group(1).strip()
+            loc = m.group(1).strip()
+            # Clean up trailing conjunctions or pronoun words
+            loc = re.split(r'\b(when|on|at|he|she|they|the|who|which|over|abusing)\b', loc, flags=re.IGNORECASE)[0].strip()
+            loc = re.sub(r"[^A-Za-z\s.-]", "", loc).strip()
+            if len(loc) > 2:
+                return loc
     return None

@@ -87,7 +87,7 @@ VIOLENCE_VERBS = {
     "assaulted", "attacked", "beat", "beaten", "hit", "slapped",
     "kicked", "punched", "stabbed", "thrashed",
     "manhandled", "dragged", "strangled", "injured", "hurt",
-    "wounded", "raped", "groped",
+    "wounded", "raped", "groped", "struck", "pushed"
 }
 
 # ── Context-sensitive: only violent if NOT in a negating phrase ───────────────
@@ -101,18 +101,24 @@ CONDITIONAL_VIOLENCE = {
 def extract_incident(doc: Doc, raw_text: str) -> dict:
     lower = raw_text.lower()
 
+    # Helper to check if verb matches but is not part of a beat officer role description
+    def _is_valid_verb(v: str) -> bool:
+        if v == "beat" and re.search(r"\bbeat\s+(?:officer|patrol|constable|policeman|guard)\b", lower):
+            return False
+        return bool(re.search(r"\b" + re.escape(v) + r"\b", lower))
+
     # ── Action verbs found in text ────────────────────────────────────────────
-    found_verbs = [v for v in CRIME_VERBS if re.search(r"\b" + re.escape(v) + r"\b", lower)]
+    found_verbs = [v for v in CRIME_VERBS if _is_valid_verb(v)]
 
     # ── Primary action (priority-ordered) ────────────────────────────────────
     primary_action = "unknown"
     for verb, action in ORDERED_ACTION_MAP:
-        if re.search(r"\b" + re.escape(verb) + r"\b", lower):
+        if _is_valid_verb(verb):
             primary_action = action
             break
 
     # ── Violence ──────────────────────────────────────────────────────────────
-    violence_involved = any(re.search(r"\b" + re.escape(v) + r"\b", lower) for v in VIOLENCE_VERBS)
+    violence_involved = any(_is_valid_verb(v) for v in VIOLENCE_VERBS)
 
     # Conditional violence verbs need context
     for verb, context_pattern in CONDITIONAL_VIOLENCE.items():

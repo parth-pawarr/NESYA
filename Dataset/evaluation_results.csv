@@ -1,0 +1,61 @@
+fir_id,ground_truth,predicted_class,processing_status,overall_confidence,primary_section_id,primary_section_title,clarification_questions_count
+FIR-2024-001,theft,cheating,insufficient_data,0.0,None,None,4
+FIR-2024-002,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,7
+FIR-2024-003,assault,assault,complete,0.65,BNS_115,Voluntarily Causing Hurt,8
+FIR-2024-004,robbery,cheating,insufficient_data,0.0,None,None,7
+FIR-2024-005,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,6
+FIR-2024-006,theft,assault,partial,0.55,BNS_115,Voluntarily Causing Hurt,7
+FIR-2024-007,assault,assault,complete,0.8,BNS_117,Voluntarily Causing Grievous Hurt,4
+FIR-2024-008,scam,scam,insufficient_data,0.0,None,None,7
+FIR-2024-009,robbery,cheating,insufficient_data,0.0,None,None,7
+FIR-2024-010,cyber_fraud,intimidation,insufficient_data,0.0,None,None,10
+FIR-2024-011,theft,none,insufficient_data,0.0,None,None,4
+FIR-2024-012,assault,assault,partial,0.55,BNS_117,Voluntarily Causing Grievous Hurt,8
+FIR-2024-013,scam,intimidation,insufficient_data,0.0,None,None,10
+FIR-2024-014,robbery,cheating,insufficient_data,0.0,None,None,7
+FIR-2024-015,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,9
+FIR-2024-016,theft,cheating,insufficient_data,0.0,None,None,8
+FIR-2024-017,assault,robbery,complete,0.65,BNS_304,Robbery,8
+FIR-2024-018,scam,scam,insufficient_data,0.0,None,None,9
+FIR-2024-019,robbery,assault,complete,0.63,BNS_115,Voluntarily Causing Hurt,7
+FIR-2024-020,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,7
+FIR-2024-021,theft,cheating,insufficient_data,0.0,None,None,5
+FIR-2024-022,assault,assault,partial,0.53,BNS_351,Criminal Intimidation,5
+FIR-2024-023,scam,scam,insufficient_data,0.0,None,None,9
+FIR-2024-024,robbery,cheating,insufficient_data,0.0,None,None,6
+FIR-2024-025,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,8
+FIR-2024-026,theft,cheating,insufficient_data,0.0,None,None,7
+FIR-2024-027,assault,assault,partial,0.55,BNS_115,Voluntarily Causing Hurt,8
+FIR-2024-028,scam,scam,insufficient_data,0.0,None,None,8
+FIR-2024-029,robbery,assault,complete,0.63,BNS_117,Voluntarily Causing Grievous Hurt,8
+FIR-2024-030,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,9
+FIR-2024-031,theft,cheating,insufficient_data,0.0,None,None,6
+FIR-2024-032,assault,assault,partial,0.55,BNS_115,Voluntarily Causing Hurt,7
+FIR-2024-033,scam,scam,insufficient_data,0.0,None,None,8
+FIR-2024-034,robbery,cheating,insufficient_data,0.0,None,None,6
+FIR-2024-035,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,9
+FIR-2024-036,theft,cheating,insufficient_data,0.0,None,None,7
+FIR-2024-037,assault,cheating,insufficient_data,0.0,None,None,6
+FIR-2024-038,scam,scam,insufficient_data,0.0,None,None,9
+FIR-2024-039,robbery,cheating,insufficient_data,0.0,None,None,6
+FIR-2024-040,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,8
+FIR-2024-041,theft,cheating,insufficient_data,0.0,None,None,8
+FIR-2024-042,assault,assault,complete,0.7,BNS_115,Voluntarily Causing Hurt,6
+FIR-2024-043,scam,scam,insufficient_data,0.0,None,None,8
+FIR-2024-044,robbery,assault,complete,0.63,BNS_115,Voluntarily Causing Hurt,10
+FIR-2024-045,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,7
+FIR-2024-046,theft,cheating,insufficient_data,0.0,None,None,7
+FIR-2024-047,assault,cheating,insufficient_data,0.0,None,None,6
+FIR-2024-048,scam,scam,insufficient_data,0.0,None,None,8
+FIR-2024-049,robbery,cheating,insufficient_data,0.0,None,None,7
+FIR-2024-050,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,8
+FIR-2024-051,theft,cheating,insufficient_data,0.0,None,None,8
+FIR-2024-052,assault,assault,partial,0.55,BNS_117,Voluntarily Causing Grievous Hurt,7
+FIR-2024-053,scam,scam,insufficient_data,0.0,None,None,8
+FIR-2024-054,robbery,cheating,insufficient_data,0.0,None,None,8
+FIR-2024-055,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,8
+FIR-2024-056,theft,cheating,insufficient_data,0.0,None,None,8
+FIR-2024-057,assault,assault,partial,0.55,BNS_115,Voluntarily Causing Hurt,9
+FIR-2024-058,scam,scam,insufficient_data,0.0,None,None,9
+FIR-2024-059,robbery,cheating,insufficient_data,0.0,None,None,7
+FIR-2024-060,cyber_fraud,cyber_fraud,insufficient_data,0.0,None,None,9

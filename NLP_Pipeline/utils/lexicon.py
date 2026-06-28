@@ -8,6 +8,7 @@ CRIME_VERBS = {
     # theft / robbery
     "snatched", "stole", "stolen", "robbed", "looted", "grabbed",
     "pickpocketed", "pilfered", "misappropriated", "embezzled",
+    "took", "take", "removed", "missing", "picked", "lifted", "carried",
     # assault / violence
     "assaulted", "attacked", "beat", "beaten", "hit", "slapped",
     "kicked", "punched", "stabbed", "shot", "fired", "pushed",
@@ -18,7 +19,9 @@ CRIME_VERBS = {
     "blackmailed", "extorted", "demanded",
     # fraud / deception
     "cheated", "deceived", "duped", "forged", "fabricated",
-    "impersonated", "defrauded", "misled",
+    "impersonated", "impersonate", "defrauded", "misled",
+    "fake", "scam", "otp", "link", "debited", "transferred", "invested",
+    "withdrawn", "claimed", "claiming", "pose", "posing", "scheme",
     # trespass / property
     "trespassed", "broke", "broken", "damaged", "destroyed",
     "vandalized", "burnt", "burned", "encroached",
@@ -45,7 +48,7 @@ THREAT_PHRASES = [
     "threatened", "will kill", "will harm", "dire consequences",
     "taught a lesson", "see consequences", "won't spare",
     "regret", "face the music", "life threat", "threatening calls",
-    "sent messages threatening", "demanded", "blackmailed",
+    "sent messages threatening", "blackmailed",
 ]
 
 # ── Property / movable item keywords ─────────────────────────────────────────
