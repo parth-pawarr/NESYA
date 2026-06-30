@@ -8,28 +8,58 @@ An AI conversational frontend for the NESYA FIR NLP pipeline, allowing users to 
 
 ```
 NESYA/
-├── NLP_Pipeline/          ← Existing NLP extraction pipeline (unchanged)
-├── Rule_Engine/           ← Existing BNS Rule Engine (unchanged)
-├── Dataset/               ← Training/evaluation data
-├── main.py                ← Original CLI entry point
+├── NLP_Pipeline/                    ← NLP entity extraction pipeline
+│   ├── fir_extractor.py             ← Main extraction orchestrator
+│   ├── README.md                    ← NLP documentation
+│   ├── extractors/                  ← Specialized extractors
+│   │   ├── incident.py              ← Crime/incident type extraction
+│   │   ├── location_time.py         ← Location & timestamp extraction
+│   │   ├── meta.py                  ← Metadata extraction
+│   │   ├── people.py                ← People (accused, witness) extraction
+│   │   └── property.py              ← Property/asset extraction
+│   ├── tests/                       ← Testing & evaluation
+│   │   ├── test_extractor.py        ← Unit tests
+│   │   └── sample_narratives.py     ← Test data
+│   └── utils/                       ← Utilities
+│       ├── lexicon.py               ← Crime/domain lexicons
+│       └── preprocessing.py         ← Text preprocessing
 │
-├── backend/               ← NEW: FastAPI backend
+├── Rule_Engine/                     ← BNS (Bharatiya Nyaya Sanhita) rules mapping
+│   └── bns_rule_engine.py           ← Rule inference engine
+│
+├── Dataset/                         ← Training/evaluation data
+│   ├── bns_sections.csv             ← BNS section reference data
+│   ├── fir_narrations.csv           ← Sample FIR narratives
+│   ├── sample.csv                   ← Dataset sample
+│   ├── evaluation_results.csv       ← Model evaluation metrics
+│   ├── evaluate_performance.py      ← Evaluation script
+│   └── evaluate_performance.ipynb   ← Evaluation notebook
+│
+├── main.py                          ← Original CLI entry point
+│
+├── backend/                         ← NEW: FastAPI backend
 │   ├── app/
-│   │   ├── api/chat.py    ← REST API endpoints
-│   │   ├── services/      ← Business logic
-│   │   ├── models/        ← Session store
-│   │   ├── schemas/       ← Pydantic models
-│   │   └── main.py        ← FastAPI app
-│   └── requirements.txt
+│   │   ├── api/chat.py              ← REST API endpoints
+│   │   ├── services/                ← Business logic layer
+│   │   ├── models/                  ← Session storage models
+│   │   ├── schemas/                 ← Pydantic request/response schemas
+│   │   └── main.py                  ← FastAPI app initialization
+│   └── requirements.txt             ← Python dependencies
 │
-└── frontend/              ← NEW: React + TypeScript + Tailwind frontend
+└── frontend/                        ← NEW: React + TypeScript + Tailwind
     ├── src/
-    │   ├── components/    ← UI components
-    │   ├── store/         ← Zustand state
-    │   ├── services/      ← API client
-    │   ├── hooks/         ← Custom React hooks
-    │   └── App.tsx        ← Root component
-    └── package.json
+    │   ├── components/              ← React UI components
+    │   │   ├── chat/                ← Chat interface components
+    │   │   ├── fir/                 ← FIR document display
+    │   │   ├── sidebar/             ← Navigation sidebar
+    │   │   └── ui/                  ← Reusable UI elements
+    │   ├── store/                   ← Zustand state management
+    │   ├── services/                ← API client & utilities
+    │   ├── hooks/                   ← Custom React hooks
+    │   ├── App.tsx                  ← Root component
+    │   └── main.tsx                 ← Entry point
+    ├── package.json                 ← Node.js dependencies
+    └── vite.config.ts               ← Vite configuration
 ```
 
 ---
