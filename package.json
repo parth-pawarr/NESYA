@@ -1,0 +1,20 @@
+{
+  "name": "nesya",
+  "version": "1.0.0",
+  "description": "An AI conversational frontend for the NESYA FIR NLP pipeline, allowing users to file First Information Reports (FIRs) through a natural chat interface.",
+  "homepage": "https://github.com/parth-pawarr/NESYA#readme",
+  "bugs": {
+    "url": "https://github.com/parth-pawarr/NESYA/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parth-pawarr/NESYA.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
