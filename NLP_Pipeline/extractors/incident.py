@@ -110,8 +110,19 @@ def extract_incident(doc: Doc, raw_text: str) -> dict:
     # ── Action verbs found in text ────────────────────────────────────────────
     found_verbs = [v for v in CRIME_VERBS if _is_valid_verb(v)]
 
+    # Context-based classification for robbery/snatching narratives
+    if re.search(r"\b(held a knife|knife to his throat|knife to her throat|threatened with a knife|robbed|snatched|took his|took her)\b", lower):
+        if re.search(r"\b(knife|weapon|throat|robbery|snatched|stolen|took)\b", lower):
+            if re.search(r"\b(knife|throat|force|threatened)\b", lower):
+                primary_action = "robbery"
+            else:
+                primary_action = "snatching"
+        else:
+            primary_action = "robbery"
+    else:
+        primary_action = "unknown"
+
     # ── Primary action (priority-ordered) ────────────────────────────────────
-    primary_action = "unknown"
     for verb, action in ORDERED_ACTION_MAP:
         if _is_valid_verb(verb):
             primary_action = action

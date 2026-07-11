@@ -27,6 +27,10 @@ def format_fir_document(
     confidence_data = nlp_result.get("CONFIDENCE", {})
 
     primary_section = rule_result.get("primary_section")
+
+    fallback_name = people.get("victim") or ""
+    if not complainant_name or str(complainant_name).strip().lower() in {"not provided", "not specified", "n/a", ""}:
+        complainant_name = fallback_name if fallback_name and fallback_name.lower() != "complainant" else "Not Provided"
     crime_type = (
         primary_section.get("title", "Unknown")
         if primary_section

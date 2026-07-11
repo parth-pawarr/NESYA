@@ -9,9 +9,11 @@ from utils.lexicon import KNOWN_ACCUSED_PHRASES, UNKNOWN_ACCUSED_PHRASES
 
 # ── Patterns that introduce the complainant/victim ────────────────────────────
 VICTIM_PATTERNS = [
-    r"(?:i am|my name is|[cC]omplainant is|[vV]ictim is)\s+([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)",
-    r"^I,?\s+([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)",   # "I, Sunita Devi"
-    r"\b[cC]omplainant\s+([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)",  # "Complainant Mohammad Salim"
+    r"(?:i am|my name is|[cC]omplainant is|[vV]ictim is)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)",
+    r"^I,?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)",   # "I, Sunita Devi"
+    r"\b[cC]omplainant\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)",  # "Complainant Mohammad Salim"
+    r"\b[cC]omplainant\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s*,",  # "Complainant Tariq Ali, auto driver, states..."
+    r"\b[cC]omplainant\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+states\b",
 ]
 
 # ── Patterns that introduce the accused ──────────────────────────────────────
@@ -31,11 +33,11 @@ WITNESS_PATTERNS = [
     r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+was present\b",
     r"\b[wW]itness(?:ed)? by\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)",
     r"\bin the presence of\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)",
-    r"\b[wW]itness(?:es)?(?:\s+(?:namely|named|called))?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)(?:\s+(?:was|were)\s+present|saw|witnessed)\b",
-    r"\b(?:[tT]here were|[tT]here was)(?:\s+(?:two|three|several|a|an))?\s+[wW]itness(?:es)?(?:\s+(?:namely|named|called))?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b",
+    r"\b[wW]itness(?:es)?(?:\s+(?:namely|named|called))?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:\s+and\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)*)\b",
+    r"\b(?:[tT]here were|[tT]here was)(?:\s+(?:two|three|several|a|an))?\s+[wW]itness(?:es)?(?:\s+(?:namely|named|called))?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:\s+and\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)*)\b",
     r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+),?\s+(?:a bystander|bystander)\b",
     r"\b[bB]ystander[,.]?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)",
-    r"\b[wW]itness(?:es)?\s+(?:included|included a|were)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)",
+    r"\b[wW]itness(?:es)?\s+(?:included|included a|were)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:\s+and\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)*)",
     r"\bseen by\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)",
     r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+(?:later\s+)?gave(?:\s+his|\s+her|\s+their)?\s+statement\s+to\s+the\s+police\b",
 ]
@@ -54,7 +56,6 @@ NAME_STOPWORDS = {
 def _find_names(text: str, patterns: list) -> list:
     found = []
     for pat in patterns:
-        # Match case-sensitively for proper names (remove re.IGNORECASE)
         for m in re.finditer(pat, text, re.MULTILINE):
             name_group = m.group(1).strip()
             # Split multiple names separated by 'and', 'or', ',', '&'
@@ -79,7 +80,7 @@ def _find_names(text: str, patterns: list) -> list:
                 name = " ".join(filtered_tokens)
                 if len(name) > 2 and name.lower() not in {"the", "a", "an"}:
                     found.append(name)
-    return list(dict.fromkeys(found))    # deduplicate, preserve order
+    return list(dict.fromkeys(found))
 
 
 def extract_people(doc: Doc, raw_text: str) -> dict:
