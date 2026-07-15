@@ -917,11 +917,13 @@ body {
 /* ── Root Layout ─────────────────────────────────────────────────────────── */
 .al-root {
   display: flex;
-  min-height: 100vh;
-  height: auto;
+  height: 100%;
+  width: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   background: #09090b;
   font-family: 'Inter', system-ui, sans-serif;
+  scroll-behavior: smooth;
 }
 
 /* ── Brand Panel (left 52%) ──────────────────────────────────────────────── */
@@ -929,12 +931,14 @@ body {
   flex: 0 0 52%;
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 56px 64px;
-  overflow: hidden;
+  overflow: visible;
   background: linear-gradient(155deg, #0a1f1a 0%, #040d0b 50%, #07120f 100%);
   border-right: 1px solid rgba(16,163,127,0.12);
+  min-height: 100%;
 }
 
 /* Animated background layers */
@@ -1014,6 +1018,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0;
+  margin: auto 0;
+  padding: 20px 0;
 }
 
 /* Logo */
@@ -1172,11 +1178,13 @@ body {
 .al-form-panel {
   flex: 0 0 48%;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 40px 28px;
-  overflow-y: auto;
+  overflow: visible;
   background: #09090b;
+  min-height: 100%;
 }
 .al-form-scroll {
   width: 100%;
@@ -1185,6 +1193,8 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  margin: auto 0;
+  padding: 20px 0;
 }
 
 /* ── Auth Card ────────────────────────────────────────────────────────────── */
@@ -1980,7 +1990,7 @@ body {
 @media (max-width: 768px) {
   .al-root { flex-direction: column; }
   .al-brand { display: none; }
-  .al-form-panel { flex: 1; padding: 24px 16px; min-height: 100vh; }
+  .al-form-panel { flex: 1; padding: 24px 16px; min-height: 100%; height: auto; overflow: visible; }
   .al-card { padding: 28px 20px; border-radius: 16px; }
   .al-mobile-logo { display: flex; }
   .lp-oauth-row { grid-template-columns: 1fr; gap: 8px; }
