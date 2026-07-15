@@ -111,6 +111,29 @@ def test_witness_named_phrase():
     assert "Amit Verma" in r["PEOPLE"]["witnesses"]
 
 
+def test_multiple_witnesses_are_extracted():
+    narrative = (
+        "Complainant Mohammad Salim reports that two witnesses namely "
+        "Santosh More and Priya Waghmare were present."
+    )
+    r = extract_fir(narrative)
+    witnesses = r["PEOPLE"]["witnesses"]
+    assert "Santosh More" in witnesses
+    assert "Priya Waghmare" in witnesses
+
+
+def test_robbery_with_knifepoint_is_classified():
+    narrative = (
+        "Complainant Tariq Ali, auto driver, states that he was flagged down by a woman "
+        "near the railway station who asked him to drop her at Banjara Hills. Midway two "
+        "male accomplices who had hidden themselves on the rear seat emerged and held a knife "
+        "to his throat, took his earrings, cash of Rs. 1,500 and mobile phone and alighted "
+        "near a dark stretch of road."
+    )
+    r = extract_fir(narrative)
+    assert r["INCIDENT"]["primary_action"] in {"robbery", "snatching"}
+
+
 def test_confidence_is_float():
     for key in NARRATIVES:
         r = _run(key)
