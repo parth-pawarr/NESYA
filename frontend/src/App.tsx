@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import {
-  Sun, Moon, PanelLeft, FileText, Loader2, BarChart3, LogOut, User,
+  Sun, Moon, PanelLeft, FileText, Loader2, BarChart3, LogOut,
 } from 'lucide-react';
 import { useChatStore } from './store/chatStore';
 import { useAuthStore } from './store/authStore';
@@ -22,47 +22,82 @@ import OAuthCallback from './components/auth/OAuthCallback';
 // ── Chat App (protected) ──────────────────────────────────────────────────────
 function ChatApp() {
   const {
-    activeSessionId, sessions, isTyping, isLoading, theme,
+    activeSession, isTyping, isLoading, theme,
     showFIRPanel, showSidebar, toggleTheme, setShowFIRPanel,
-    setShowSidebar, setActiveSession,
+    setShowSidebar,
   } = useChatStore();
 
-  const { initSession, sendChat, startNewChat, triggerGenerateFIR } = useChat();
+  const {
+    startNewChat, sendChat, triggerGenerateFIR,
+    fetchConversations, loadConversation,
+  } = useChat();
+
   const { user, logout } = useAuthStore();
 
-  const activeSession = activeSessionId ? sessions[activeSessionId] : null;
   const firData = activeSession?.fir_data;
   const completion = activeSession?.completion_percentage ?? 0;
 
+  // Apply theme
   useEffect(() => {
     document.documentElement.className = theme === 'light' ? 'light-mode' : '';
   }, [theme]);
 
+  // ── Re-run whenever the authenticated user changes ────────────────────────
+  // Keyed on user?.id so switching accounts immediately triggers a fresh load.
   useEffect(() => {
-    if (!activeSessionId) initSession();
+    if (!user?.id) return;            // Not authenticated yet — do nothing
+    let cancelled = false;
+    (async () => {
+      // 1. Fetch this user's conversations from the DB
+      await fetchConversations(1, false);
+      if (cancelled) return;
+
+      // 2. Auto-start a fresh chat if the user has no previous conversations
+      const { conversations, activeSession } = useChatStore.getState();
+      if (!activeSession && conversations.length === 0) {
+        await startNewChat();
+      }
+    })();
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user?.id]);
 
   const handleSend = useCallback((msg: string) => sendChat(msg), [sendChat]);
-  const handleNewChat = useCallback(async () => { await startNewChat(); }, [startNewChat]);
-  const handleSelectSession = useCallback((id: string) => setActiveSession(id), [setActiveSession]);
+
+  const handleNewChat = useCallback(async () => {
+    await startNewChat();
+  }, [startNewChat]);
+
+  const handleSelectConversation = useCallback(
+    async (id: string) => {
+      await loadConversation(id);
+    },
+    [loadConversation],
+  );
 
   return (
     <div className="app-layout">
       <div className={`sidebar ${showSidebar ? '' : 'collapsed'}`}>
-        <Sidebar onNewChat={handleNewChat} onSelectSession={handleSelectSession} />
+        <Sidebar
+          onNewChat={handleNewChat}
+          onSelectConversation={handleSelectConversation}
+        />
       </div>
 
       <main className="chat-main">
         <header className="chat-header">
           <div className="chat-header-left">
-            <button className="header-btn" onClick={() => setShowSidebar(!showSidebar)}
-              title="Toggle sidebar" aria-label="Toggle sidebar">
+            <button
+              className="header-btn"
+              onClick={() => setShowSidebar(!showSidebar)}
+              title="Toggle sidebar"
+              aria-label="Toggle sidebar"
+            >
               <PanelLeft size={16} />
             </button>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>
-                NESYA FIR Assistant
+                {activeSession?.title ?? 'NESYA FIR Assistant'}
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
                 <span style={{
@@ -87,23 +122,35 @@ function ChatApp() {
                 {completion}% Complete
               </div>
             )}
+
             {firData && (
-              <button className="header-btn" onClick={() => setShowFIRPanel(!showFIRPanel)}
-                title="View FIR Document" aria-label="Toggle FIR panel"
+              <button
+                className="header-btn"
+                onClick={() => setShowFIRPanel(!showFIRPanel)}
+                title="View FIR Document"
+                aria-label="Toggle FIR panel"
                 style={{
                   background: showFIRPanel ? 'rgba(16,163,127,0.16)' : 'rgba(148,163,184,0.04)',
                   borderColor: showFIRPanel ? 'rgba(16,163,127,0.28)' : 'var(--border)',
                   color: 'var(--text-primary)',
-                }}>
+                }}
+              >
                 <FileText size={16} />
               </button>
             )}
+
             {!firData && completion > 0 && (
-              <button className="header-btn" onClick={() => triggerGenerateFIR()}
-                title="Generate FIR now" style={{ color: 'var(--text-primary)' }} disabled={isTyping}>
+              <button
+                className="header-btn"
+                onClick={() => triggerGenerateFIR()}
+                title="Generate FIR now"
+                style={{ color: 'var(--text-primary)' }}
+                disabled={isTyping}
+              >
                 {isTyping
                   ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                  : <FileText size={16} />}
+                  : <FileText size={16} />
+                }
               </button>
             )}
 
@@ -119,19 +166,23 @@ function ChatApp() {
                 }}>
                   {user.avatar_url
                     ? <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                    : user.full_name.charAt(0).toUpperCase()}
+                    : user.full_name.charAt(0).toUpperCase()
+                  }
                 </div>
               </div>
             )}
 
-            <button className="header-btn" onClick={toggleTheme}
-              title="Toggle theme" aria-label="Toggle theme">
+            <button className="header-btn" onClick={toggleTheme} title="Toggle theme" aria-label="Toggle theme">
               {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
-            <button className="header-btn" onClick={() => logout()}
-              title="Sign out" aria-label="Sign out"
-              style={{ color: 'var(--text-muted)' }}>
+            <button
+              className="header-btn"
+              onClick={() => logout()}
+              title="Sign out"
+              aria-label="Sign out"
+              style={{ color: 'var(--text-muted)' }}
+            >
               <LogOut size={16} />
             </button>
           </div>
@@ -139,7 +190,7 @@ function ChatApp() {
 
         <FIRProgressBar />
 
-        {isLoading && !activeSessionId ? (
+        {isLoading && !activeSession ? (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ textAlign: 'center' }}>
               <Loader2 size={40} style={{ color: 'var(--violet-400)', animation: 'spin 1s linear infinite', margin: '0 auto 12px' }} />
@@ -168,7 +219,6 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { initialize(); }, [initialize]);
 
-  // Show a minimal splash while the store hydrates (< 300ms typically)
   if (!isInitialized) {
     return (
       <div className="auth-loading-screen">

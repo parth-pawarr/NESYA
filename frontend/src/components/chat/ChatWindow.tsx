@@ -11,10 +11,9 @@ interface Props {
 }
 
 export default function ChatWindow({ onSend }: Props) {
-  const { activeSessionId, sessions, isTyping } = useChatStore();
-  const session = activeSessionId ? sessions[activeSessionId] : null;
-  const messages: LocalMessage[] = session?.messages ?? [];
-  const suggestedReplies = session?.suggested_replies ?? [];
+  const { activeSession, isTyping } = useChatStore();
+  const messages: LocalMessage[] = activeSession?.messages ?? [];
+  const suggestedReplies = activeSession?.suggested_replies ?? [];
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll on new message

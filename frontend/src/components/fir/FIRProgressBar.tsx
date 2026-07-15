@@ -2,10 +2,9 @@ import React from 'react';
 import { useChatStore } from '../../store/chatStore';
 
 export default function FIRProgressBar() {
-  const { activeSessionId, sessions } = useChatStore();
-  const session = activeSessionId ? sessions[activeSessionId] : null;
-  const pct = session?.completion_percentage ?? 0;
-  const missing = session?.missing_fields ?? [];
+  const { activeSession } = useChatStore();
+  const pct = activeSession?.completion_percentage ?? 0;
+  const missing = activeSession?.missing_fields ?? [];
 
   if (pct === 0) return null;
 

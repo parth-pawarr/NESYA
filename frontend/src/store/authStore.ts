@@ -2,6 +2,7 @@ import type { UserResponse } from '../services/authService';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authAPI } from '../services/authService';
+import { useChatStore } from './chatStore';
 
 interface AuthState {
   user: UserResponse | null;
@@ -78,6 +79,9 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       login: async (email, password, _rememberMe = false) => {
+        // ⚠️  Wipe ALL previous user's chat state BEFORE setting new tokens.
+        // This prevents any flicker of another user's conversations.
+        useChatStore.getState().resetForUser();
         set({ isLoading: true, error: null });
         try {
           const data = await authAPI.login(email, password);
@@ -117,6 +121,8 @@ export const useAuthStore = create<AuthStore>()(
         } catch {
           // Best-effort — always clear local state
         } finally {
+          // Clear chat data FIRST so it's never visible after logout
+          useChatStore.getState().resetForUser();
           set({
             user: null, accessToken: null, refreshToken: null,
             isAuthenticated: false, error: null,
