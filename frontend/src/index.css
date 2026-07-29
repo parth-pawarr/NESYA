@@ -569,11 +569,11 @@ body {
 
 .chat-textarea::placeholder { color: var(--text-muted); }
 
+.voice-btn,
 .send-btn {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--violet-500), var(--cyan-400));
   border: none;
   color: white;
   display: flex;
@@ -584,11 +584,31 @@ body {
   flex-shrink: 0;
 }
 
+.voice-btn {
+  background: rgba(16, 163, 127, 0.16);
+  color: var(--text-primary);
+}
+
+.voice-btn.active {
+  background: rgba(248, 113, 113, 0.18);
+  color: #f43f5e;
+}
+
+.voice-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(16, 163, 127, 0.16);
+}
+
+.send-btn {
+  background: linear-gradient(135deg, var(--violet-500), var(--cyan-400));
+}
+
 .send-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 8px 20px rgba(16, 163, 127, 0.22);
 }
 
+.voice-btn:disabled,
 .send-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -597,6 +617,13 @@ body {
 .input-hint {
   font-size: 11px;
   color: var(--text-muted);
+  margin-top: 6px;
+  padding: 0 4px;
+}
+
+.voice-error {
+  font-size: 11px;
+  color: #f43f5e;
   margin-top: 6px;
   padding: 0 4px;
 }
