@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,6 +19,7 @@ from app.schemas import (
     AnalyzeRequest, AnalyzeResponse,
     GenerateFIRRequest,
     ResetRequest, ResetResponse,
+    TranslationRequest, TranslationResponse,
 )
 from app.schemas.conversation import (
     ConversationCreateRequest,
@@ -37,6 +39,45 @@ from app.services.fir_service import analyze_narrative, get_missing_fields, comp
 from app.models.session import get_session, list_sessions
 
 router = APIRouter(prefix="/api/v1", tags=["FIR Chat"])
+
+
+@router.post("/translate", response_model=TranslationResponse)
+async def translate_text(
+    request: TranslationRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """Translate supported Indian-language voice transcripts into English."""
+    del current_user
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                "https://translate.googleapis.com/translate_a/single",
+                params={
+                    "client": "gtx",
+                    "sl": request.source_language,
+                    "tl": "en",
+                    "dt": "t",
+                    "q": request.text,
+                },
+            )
+            response.raise_for_status()
+            payload = response.json()
+            translated_text = "".join(
+                part[0] for part in payload[0] if part and part[0]
+            ).strip()
+    except (httpx.HTTPError, ValueError, IndexError, TypeError) as error:
+        raise HTTPException(
+            status_code=502,
+            detail="Translation service is temporarily unavailable.",
+        ) from error
+
+    if not translated_text:
+        raise HTTPException(status_code=422, detail="No translated text was returned.")
+
+    return TranslationResponse(
+        translated_text=translated_text,
+        source_language=request.source_language,
+    )
 
 
 # ── Health ────────────────────────────────────────────────────────────────────

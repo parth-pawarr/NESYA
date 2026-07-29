@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Send, Mic, MicOff } from 'lucide-react';
+import { translateText } from '../../services/api';
 
 interface SpeechRecognitionAlternativeLike {
   transcript: string;
@@ -31,6 +32,8 @@ interface Props {
   disabled?: boolean;
 }
 
+type VoiceLanguage = 'en' | 'hi' | 'mr';
+
 declare global {
   interface Window {
     SpeechRecognition?: new () => SpeechRecognitionLike;
@@ -43,9 +46,14 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState('');
   const [voiceSupported, setVoiceSupported] = useState(false);
+  const [voiceLanguage, setVoiceLanguage] = useState<VoiceLanguage>('en');
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [hasLocalText, setHasLocalText] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
+  const voiceLanguageRef = useRef<VoiceLanguage>('en');
+  const originalLocalTextRef = useRef<string>('');
 
   useEffect(() => {
     const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -70,12 +78,14 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
         }
 
         if (finalTranscript) {
-          setValue((prev) => {
-            const base = prev.trim();
-            const nextText = `${base ? `${base} ` : ''}${finalTranscript.trim()}`.trim();
-            return nextText;
-          });
+          const transcript = finalTranscript.trim();
+          setValue((prev) => `${prev.trim() ? `${prev.trim()} ` : ''}${transcript}`.trim());
           setVoiceError('');
+          // Mark that text comes from a local language (non-English)
+          if (voiceLanguageRef.current !== 'en') {
+            setHasLocalText(true);
+            originalLocalTextRef.current = transcript;
+          }
         }
 
         if (interimTranscript && !finalTranscript) {
@@ -113,15 +123,23 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
   }, []);
 
   const handleSend = useCallback(() => {
-    const msg = value.trim();
+    let msg = value.trim();
     if (!msg || disabled) return;
+    
+    // If there's original local language text, append it on a separate line
+    if (originalLocalTextRef.current && voiceLanguage !== 'en') {
+      msg = `${msg}\n(${originalLocalTextRef.current})`;
+    }
+    
     onSend(msg);
     setValue('');
     setVoiceError('');
+    setHasLocalText(false);
+    originalLocalTextRef.current = '';
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
-  }, [value, disabled, onSend]);
+  }, [value, disabled, voiceLanguage]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -133,6 +151,8 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
     setVoiceError('');
+    setHasLocalText(false);
+    originalLocalTextRef.current = '';
     const ta = e.target;
     ta.style.height = 'auto';
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
@@ -144,6 +164,34 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
     mediaStreamRef.current = null;
     setIsListening(false);
   }, []);
+
+  const handleVoiceLanguageChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+    const language = event.target.value as VoiceLanguage;
+    voiceLanguageRef.current = language;
+    setVoiceLanguage(language);
+    if (recognitionRef.current) {
+      recognitionRef.current.lang = language === 'hi' ? 'hi-IN' : language === 'mr' ? 'mr-IN' : 'en-IN';
+    }
+  }, []);
+
+  const handleTranslateToEnglish = useCallback(async () => {
+    const msg = value.trim();
+    if (!msg || voiceLanguage === 'en') return;
+
+    // Save the original local language text before translation
+    originalLocalTextRef.current = msg;
+
+    setIsTranslating(true);
+    setVoiceError('');
+    try {
+      const translated = await translateText(msg, voiceLanguage);
+      setValue(translated);
+    } catch {
+      setVoiceError('Could not translate. Please try again.');
+    } finally {
+      setIsTranslating(false);
+    }
+  }, [value, voiceLanguage]);
 
   const toggleVoiceInput = useCallback(async () => {
     if (!recognitionRef.current) {
@@ -165,6 +213,7 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
       mediaStreamRef.current = stream;
       setVoiceError('');
       setIsListening(true);
+      recognitionRef.current.lang = voiceLanguage === 'hi' ? 'hi-IN' : voiceLanguage === 'mr' ? 'mr-IN' : 'en-IN';
       recognitionRef.current.start();
     } catch (error) {
       const message = error instanceof Error && error.message
@@ -173,7 +222,7 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
       setVoiceError(message);
       setIsListening(false);
     }
-  }, [isListening, stopVoiceInput]);
+  }, [isListening, stopVoiceInput, voiceLanguage]);
 
   return (
     <div className="chat-input-area">
@@ -190,20 +239,45 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
           aria-label="Chat input"
         />
         {voiceSupported && (
+          <select
+            className="voice-language-select"
+            value={voiceLanguage}
+            onChange={handleVoiceLanguageChange}
+            disabled={isListening || disabled}
+            aria-label="Voice input language"
+          >
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="mr">Marathi</option>
+          </select>
+        )}
+        {voiceSupported && (
           <button
             className={`voice-btn ${isListening ? 'active' : ''}`}
             onClick={toggleVoiceInput}
-            disabled={disabled}
+            disabled={disabled || isTranslating}
             aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
             type="button"
           >
             {isListening ? <MicOff size={16} /> : <Mic size={16} />}
           </button>
         )}
+        {hasLocalText && voiceLanguage !== 'en' && (
+          <button
+            className="translate-btn"
+            onClick={handleTranslateToEnglish}
+            disabled={disabled || isTranslating}
+            aria-label="Translate to English"
+            type="button"
+            title="Translate local language text to English"
+          >
+            📝 Translate
+          </button>
+        )}
         <button
           className="send-btn"
           onClick={handleSend}
-          disabled={!value.trim() || disabled}
+          disabled={!value.trim() || disabled || isTranslating}
           aria-label="Send message"
           type="button"
         >
@@ -212,7 +286,7 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
       </div>
       <p className="input-hint">
         Press <strong>Enter</strong> to send · <strong>Shift+Enter</strong> for new line
-        {voiceSupported ? ' · Tap the mic to speak' : ''}
+        {voiceSupported ? ' · Choose a voice language, then tap the mic' : ''}
       </p>
       {voiceError && <p className="voice-error">{voiceError}</p>}
     </div>

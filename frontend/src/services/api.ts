@@ -131,6 +131,17 @@ export const sendMessage = async (request: ChatRequest): Promise<ChatResponse> =
   return data;
 };
 
+export const translateText = async (
+  text: string,
+  sourceLanguage: 'hi' | 'mr',
+): Promise<string> => {
+  const { data } = await authApi.post<{ translated_text: string }>(`${BASE}/translate`, {
+    text,
+    source_language: sourceLanguage,
+  });
+  return data.translated_text;
+};
+
 export const generateFIR = async (
   sessionId: string,
   complainantName?: string,

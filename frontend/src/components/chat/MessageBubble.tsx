@@ -73,7 +73,7 @@ export default function MessageBubble({ message }: Props) {
               {message.content}
             </ReactMarkdown>
           ) : (
-            <p style={{ margin: 0 }}>{message.content}</p>
+            <p style={{ margin: 0, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{message.content}</p>
           )}
         </div>
 
