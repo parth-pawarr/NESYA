@@ -2,6 +2,7 @@
 NESYA — Email Service
 Sends transactional emails via SMTP (or prints to console when MAIL_SUPPRESS_SEND=true).
 """
+import asyncio
 import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -41,7 +42,7 @@ class EmailService:
             )
             return
 
-        try:
+        def _smtp_send() -> None:
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
             msg["From"] = f"{settings.MAIL_FROM_NAME} <{settings.MAIL_FROM}>"
@@ -50,14 +51,20 @@ class EmailService:
 
             with smtplib.SMTP(settings.MAIL_SERVER, settings.MAIL_PORT, timeout=15) as srv:
                 if settings.MAIL_STARTTLS:
+                    srv.ehlo()
                     srv.starttls()
+                    srv.ehlo()
                 if settings.MAIL_USERNAME:
                     srv.login(settings.MAIL_USERNAME, settings.MAIL_PASSWORD)
                 srv.sendmail(settings.MAIL_FROM, to, msg.as_string())
 
+        try:
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(None, _smtp_send)
             logger.info("Email sent → %s (%s)", to, subject)
         except Exception as exc:
             logger.error("Failed to send email to %s: %s", to, exc)
+            raise
 
     # ── HTML Templates ────────────────────────────────────────────────────────
     def _base_template(self, content: str) -> str:

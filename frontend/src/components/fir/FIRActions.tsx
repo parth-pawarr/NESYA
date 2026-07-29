@@ -1,4 +1,5 @@
 import React from 'react';
+import maharashtraLogo from '../../assets/maharashtra_police_logo.png';
 import { Download, Copy, FileJson, RefreshCw, Check } from 'lucide-react';
 import type { FIRDocument } from '../../services/api';
 import { useChatStore } from '../../store/chatStore';
@@ -33,7 +34,7 @@ export default function FIRActions({ fir, onRegenerate }: Props) {
     addToast('FIR exported as JSON!', 'success');
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const pageW = doc.internal.pageSize.getWidth();
     const margin = 15;
@@ -60,14 +61,37 @@ export default function FIRActions({ fir, onRegenerate }: Props) {
       y += 5;
     };
 
-    // Header
+    // Load Maharashtra Police logo as base64
+    let logoBase64: string | null = null;
+    try {
+      const response = await fetch(maharashtraLogo);
+      const blob = await response.blob();
+      logoBase64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      logoBase64 = null;
+    }
+
+    // Header background
     doc.setFillColor(30, 27, 75);
-    doc.rect(0, 0, pageW, 30, 'F');
-    doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor('#ffffff');
-    doc.text('FIRST INFORMATION REPORT (FIR)', pageW / 2, 14, { align: 'center' });
-    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-    doc.text(`FIR No: ${fir.fir_number}  |  Date: ${fir.date_of_report}`, pageW / 2, 22, { align: 'center' });
-    y = 38;
+    doc.rect(0, 0, pageW, 36, 'F');
+
+    // Maharashtra Police logo in top-left corner
+    if (logoBase64) {
+      doc.addImage(logoBase64, 'PNG', 4, 2, 28, 28);
+    }
+
+    // Header text (centered, offset slightly right to account for logo)
+    doc.setFontSize(15); doc.setFont('helvetica', 'bold'); doc.setTextColor('#ffffff');
+    doc.text('FIRST INFORMATION REPORT (FIR)', pageW / 2 + 8, 13, { align: 'center' });
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor('#c7d2fe');
+    doc.text('Government of Maharashtra — Maharashtra Police', pageW / 2 + 8, 20, { align: 'center' });
+    doc.setFontSize(8); doc.setTextColor('#a5b4fc');
+    doc.text(`FIR No: ${fir.fir_number}  |  Date: ${fir.date_of_report}`, pageW / 2 + 8, 27, { align: 'center' });
+    y = 44;
 
     addLine('COMPLAINANT DETAILS', 11, 'bold', '#5b21b6');
     addHR();
