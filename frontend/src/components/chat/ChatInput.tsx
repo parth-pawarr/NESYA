@@ -1,14 +1,18 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Send, Mic, MicOff } from 'lucide-react';
 
-interface SpeechRecognitionResultLike {
+interface SpeechRecognitionAlternativeLike {
   transcript: string;
+}
+
+interface SpeechRecognitionResultLike {
   isFinal?: boolean;
+  [index: number]: SpeechRecognitionAlternativeLike | undefined;
 }
 
 interface SpeechRecognitionEventLike {
   resultIndex: number;
-  results: ArrayLike<ArrayLike<SpeechRecognitionResultLike>>;
+  results: ArrayLike<SpeechRecognitionResultLike>;
 }
 
 interface SpeechRecognitionLike {
@@ -41,12 +45,13 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
   const [voiceSupported, setVoiceSupported] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognitionCtor) {
       const recognition = new SpeechRecognitionCtor();
-      recognition.continuous = false;
+      recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-IN';
 
@@ -56,8 +61,8 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
 
         for (let index = event.resultIndex; index < event.results.length; index += 1) {
           const result = event.results[index];
-          const chunk = result[0]?.transcript ?? '';
-          if (result[0]?.isFinal) {
+          const chunk = result?.[0]?.transcript ?? '';
+          if (result?.isFinal) {
             finalTranscript += chunk;
           } else {
             interimTranscript += chunk;
@@ -101,6 +106,8 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
 
     return () => {
       recognitionRef.current?.stop();
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
       recognitionRef.current = null;
     };
   }, []);
@@ -131,22 +138,42 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
   };
 
-  const toggleVoiceInput = useCallback(() => {
+  const stopVoiceInput = useCallback(() => {
+    recognitionRef.current?.stop();
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+    mediaStreamRef.current = null;
+    setIsListening(false);
+  }, []);
+
+  const toggleVoiceInput = useCallback(async () => {
     if (!recognitionRef.current) {
       setVoiceError('Voice input is not supported in this browser.');
       return;
     }
 
     if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
+      stopVoiceInput();
       return;
     }
 
-    setVoiceError('');
-    setIsListening(true);
-    recognitionRef.current.start();
-  }, [isListening]);
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error('Microphone access is unavailable in this browser.');
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+      setVoiceError('');
+      setIsListening(true);
+      recognitionRef.current.start();
+    } catch (error) {
+      const message = error instanceof Error && error.message
+        ? error.message
+        : 'Microphone permission was denied or unavailable.';
+      setVoiceError(message);
+      setIsListening(false);
+    }
+  }, [isListening, stopVoiceInput]);
 
   return (
     <div className="chat-input-area">

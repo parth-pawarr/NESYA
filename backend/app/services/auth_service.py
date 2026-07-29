@@ -230,7 +230,11 @@ class AuthService:
         ))
         await db.commit()
 
-        await _email_svc.send_password_reset_email(user.email, user.full_name, plain_token)
+        try:
+            await _email_svc.send_password_reset_email(user.email, user.full_name, plain_token)
+        except Exception:
+            logger.warning("Failed to send password reset email to %s — token saved in DB", user.email)
+
         await log_audit(db, "user.password_reset_requested", request=request,
                         user_id=user.id, status="success")
         await db.commit()
