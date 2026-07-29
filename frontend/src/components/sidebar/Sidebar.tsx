@@ -276,16 +276,22 @@ export default function Sidebar({ onNewChat, onSelectConversation }: Props) {
 
   const [search, setSearch] = useState('');
   const [showArchived, setShowArchived] = useState(false);
-  const searchTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Debounced search
   useEffect(() => {
-    clearTimeout(searchTimeout.current);
-    searchTimeout.current = setTimeout(() => {
+    if (searchTimeout.current !== null) {
+      clearTimeout(searchTimeout.current);
+    }
+    searchTimeout.current = window.setTimeout(() => {
       searchChats(search);
     }, 300);
-    return () => clearTimeout(searchTimeout.current);
+    return () => {
+      if (searchTimeout.current !== null) {
+        clearTimeout(searchTimeout.current);
+      }
+    };
   }, [search, searchChats]);
 
   // Infinite scroll
