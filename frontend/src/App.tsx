@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import {
-  Sun, Moon, PanelLeft, FileText, Loader2, BarChart3, LogOut,
+  Sun, Moon, PanelLeft, FileText, Loader2, BarChart3, LogOut, ShieldCheck,
 } from 'lucide-react';
 import { useChatStore } from './store/chatStore';
 import { useAuthStore } from './store/authStore';
@@ -18,6 +18,8 @@ import ForgotPasswordPage from './components/auth/ForgotPasswordPage';
 import ResetPasswordPage from './components/auth/ResetPasswordPage';
 import VerifyEmailPage from './components/auth/VerifyEmailPage';
 import OAuthCallback from './components/auth/OAuthCallback';
+import AdminRouteGuard from './components/admin/AdminRouteGuard';
+import AdminLayout from './components/admin/AdminLayout';
 
 // ── Chat App (protected) ──────────────────────────────────────────────────────
 function ChatApp() {
@@ -43,16 +45,13 @@ function ChatApp() {
   }, [theme]);
 
   // ── Re-run whenever the authenticated user changes ────────────────────────
-  // Keyed on user?.id so switching accounts immediately triggers a fresh load.
   useEffect(() => {
-    if (!user?.id) return;            // Not authenticated yet — do nothing
+    if (!user?.id) return;
     let cancelled = false;
     (async () => {
-      // 1. Fetch this user's conversations from the DB
       await fetchConversations(1, false);
       if (cancelled) return;
 
-      // 2. Auto-start a fresh chat if the user has no previous conversations
       const { conversations, activeSession } = useChatStore.getState();
       if (!activeSession && conversations.length === 0) {
         await startNewChat();
@@ -112,6 +111,21 @@ function ChatApp() {
           </div>
 
           <div className="chat-header-right">
+            {/* Quick Admin Console Switch Button */}
+            <Link
+              to="/admin"
+              className="header-btn"
+              title="Admin Control Panel"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '4px 10px', borderRadius: 8,
+                background: 'rgba(99, 102, 241, 0.12)', border: '1px solid rgba(99, 102, 241, 0.3)',
+                color: '#818cf8', fontSize: 12, fontWeight: 600, textDecoration: 'none',
+              }}
+            >
+              <ShieldCheck size={14} /> Admin Dashboard
+            </Link>
+
             {completion > 0 && (
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 6,
@@ -245,6 +259,16 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
+
+          {/* Admin Dashboard */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRouteGuard>
+                <AdminLayout />
+              </AdminRouteGuard>
+            }
+          />
 
           {/* Protected chat app */}
           <Route path="/" element={
