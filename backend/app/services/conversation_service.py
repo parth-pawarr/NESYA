@@ -67,7 +67,6 @@ def process_message(
     if police_station:
         session.police_station = police_station
 
-    # Record user message and append to narrative
     session.add_user_message(message)
     session.append_narrative(message)
 

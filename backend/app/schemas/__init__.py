@@ -14,6 +14,17 @@ class ChatRequest(BaseModel):
     police_station: Optional[str] = Field(None, description="Target police station")
 
 
+class TranslationRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=5000)
+    source_language: Optional[str] = Field(None, pattern="^(hi|mr|en|auto)$")
+
+
+class TranslationResponse(BaseModel):
+    translated_text: str
+    source_language: str
+    target_language: str = "en"
+
+
 class ConversationMessage(BaseModel):
     role: str  # "user" | "assistant"
     content: str

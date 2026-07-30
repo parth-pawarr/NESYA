@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,6 +19,7 @@ from app.schemas import (
     AnalyzeRequest, AnalyzeResponse,
     GenerateFIRRequest,
     ResetRequest, ResetResponse,
+    TranslationRequest, TranslationResponse,
 )
 from app.schemas.conversation import (
     ConversationCreateRequest,
@@ -34,9 +36,34 @@ from app.services.conversation_service import (
     reset_session,
 )
 from app.services.fir_service import analyze_narrative, get_missing_fields, compute_completion_percentage
+from app.services.translation_service import translate_text as translate_text_service
 from app.models.session import get_session, list_sessions
 
 router = APIRouter(prefix="/api/v1", tags=["FIR Chat"])
+
+
+@router.post("/translate", response_model=TranslationResponse)
+async def translate_text(
+    request: TranslationRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """Translate supported local-language text into English."""
+    del current_user
+    try:
+        translation = translate_text_service(
+            text=request.text,
+            source_language=request.source_language,
+        )
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=502,
+            detail="Translation service is temporarily unavailable.",
+        ) from error
+
+    return TranslationResponse(
+        translated_text=translation["translated_text"],
+        source_language=translation["detected_source_language"],
+    )
 
 
 # ── Health ────────────────────────────────────────────────────────────────────

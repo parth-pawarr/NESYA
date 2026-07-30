@@ -569,8 +569,31 @@ body {
 
 .chat-textarea::placeholder { color: var(--text-muted); }
 
+.voice-language-select {
+  align-self: center;
+  max-width: 142px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 11px;
+  padding: 7px 5px;
+  outline: none;
+}
+
+.voice-language-select:focus {
+  border-color: rgba(16, 163, 127, 0.4);
+}
+
+.voice-language-select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .voice-btn,
-.send-btn {
+.send-btn,
+.translate-btn {
   width: 36px;
   height: 36px;
   border-radius: 10px;
@@ -582,9 +605,14 @@ body {
   cursor: pointer;
   transition: var(--transition);
   flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 8px;
+  white-space: nowrap;
 }
 
 .voice-btn {
+  width: auto;
   background: rgba(16, 163, 127, 0.16);
   color: var(--text-primary);
 }
@@ -599,7 +627,22 @@ body {
   box-shadow: 0 8px 20px rgba(16, 163, 127, 0.16);
 }
 
+.translate-btn {
+  width: auto;
+  background: rgba(59, 130, 246, 0.16);
+  color: #3b82f6;
+  font-size: 11px;
+  padding: 0 10px;
+}
+
+.translate-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.16);
+}
+
 .send-btn {
+  width: 36px;
+  height: 36px;
   background: linear-gradient(135deg, var(--violet-500), var(--cyan-400));
 }
 
@@ -609,7 +652,8 @@ body {
 }
 
 .voice-btn:disabled,
-.send-btn:disabled {
+.send-btn:disabled,
+.translate-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
