@@ -107,22 +107,40 @@ The app will open at **http://localhost:5173**
 
 ## 🔌 API Endpoints
 
+Most `/api/v1/*` endpoints require JWT authentication, except `/api/v1/health`.
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET`  | `/api/v1/health` | Health check |
-| `POST` | `/api/v1/start` | Start a new chat session |
-| `POST` | `/api/v1/chat` | Send a message in a session |
-| `POST` | `/api/v1/analyze` | Analyze a narrative (stateless) |
+| `POST` | `/api/v1/start` | Start a chat session |
+| `POST` | `/api/v1/chat` | Send a chat message |
+| `POST` | `/api/v1/analyze` | Analyze a narrative statelessly |
 | `POST` | `/api/v1/generate-fir` | Force-generate FIR for a session |
-| `GET`  | `/api/v1/conversation/{id}` | Get conversation history |
-| `GET`  | `/api/v1/conversations` | List all sessions |
-| `POST` | `/api/v1/reset` | Delete a session |
+| `POST` | `/api/v1/reset` | Clear an in-memory session |
+| `POST` | `/api/v1/translate` | Translate local-language text |
+| `POST` | `/api/v1/conversations` | Create a new conversation |
+| `GET`  | `/api/v1/conversations` | List conversations |
+| `GET`  | `/api/v1/conversations/{id}` | Get conversation detail |
+| `PATCH` | `/api/v1/conversations/{id}` | Rename or archive conversation |
+| `DELETE` | `/api/v1/conversations/{id}` | Delete a conversation |
+| `POST` | `/api/v1/conversations/search` | Search conversations |
+| `POST` | `/api/v1/auth/register` | Register a new user |
+| `POST` | `/api/v1/auth/login` | Authenticate and receive tokens |
+| `POST` | `/api/v1/auth/refresh` | Refresh access token |
+| `POST` | `/api/v1/auth/logout` | Revoke refresh token |
+| `GET`  | `/api/v1/auth/me` | Get current authenticated user |
+| `POST` | `/api/v1/auth/verify-email` | Verify email token |
+| `POST` | `/api/v1/auth/forgot-password` | Send password reset email |
+| `POST` | `/api/v1/auth/reset-password` | Reset password with token |
+| `GET`  | `/api/v1/auth/oauth/{provider}` | Start OAuth sign-in |
+| `GET`  | `/api/v1/auth/oauth/{provider}/callback` | OAuth callback redirect |
 
 ### Example Request
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/chat \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <access_token>" \
   -d '{"message": "My bike was stolen near the railway station yesterday at 8 PM"}'
 ```
 
@@ -197,14 +215,26 @@ curl -X POST http://localhost:8000/api/v1/chat \
 
 ## 🔧 Environment Variables
 
-Backend (optional `.env` in `backend/`):
+Backend (`backend/.env` recommended):
+
 ```env
-# No required env vars — the pipeline works out of the box
-PORT=8000
-HOST=0.0.0.0
+APP_NAME=NESYA FIR Assistant
+DEBUG=True
+FRONTEND_URL=http://localhost:5173
+BACKEND_URL=http://localhost:8000
+DATABASE_URL=postgresql+asyncpg://nesya:password@localhost:5432/nesya_db
+SECRET_KEY=change-me-to-a-secure-secret
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM=noreply@nesya.ai
+MAIL_PORT=587
+MAIL_SERVER=smtp.gmail.com
+MAIL_STARTTLS=True
+MAIL_SSL_TLS=False
+SKIP_EMAIL_VERIFY=True
 ```
 
-Frontend (`.env` in `frontend/`):
+Frontend (`frontend/.env`):
 ```env
 VITE_API_BASE_URL=http://localhost:8000
 ```
