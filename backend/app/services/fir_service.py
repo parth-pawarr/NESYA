@@ -19,6 +19,7 @@ sys.path.insert(0, str(_root / "Rule_Engine"))
 try:
     from fir_extractor import extract_fir           # existing NLP pipeline
     from bns_rule_engine import BNSRuleEngine       # existing rule engine
+    from app.services.translation_service import translate_to_english_if_needed
     _PIPELINE_AVAILABLE = True
 except ImportError as e:
     _PIPELINE_AVAILABLE = False
@@ -64,8 +65,10 @@ def analyze_narrative(narrative: str) -> dict:
             "error": "Empty narrative provided."
         }
 
+    translated_narrative, _ = translate_to_english_if_needed(narrative)
+
     try:
-        nlp_result = extract_fir(narrative)
+        nlp_result = extract_fir(translated_narrative)
     except Exception as e:
         return {
             "nlp_result": {},

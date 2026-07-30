@@ -133,7 +133,7 @@ export const sendMessage = async (request: ChatRequest): Promise<ChatResponse> =
 
 export const translateText = async (
   text: string,
-  sourceLanguage: 'hi' | 'mr',
+  sourceLanguage: 'hi' | 'mr' | 'auto',
 ): Promise<string> => {
   const { data } = await authApi.post<{ translated_text: string }>(`${BASE}/translate`, {
     text,

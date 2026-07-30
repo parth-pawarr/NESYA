@@ -36,6 +36,7 @@ from app.services.conversation_service import (
     reset_session,
 )
 from app.services.fir_service import analyze_narrative, get_missing_fields, compute_completion_percentage
+from app.services.translation_service import translate_text as translate_text_service
 from app.models.session import get_session, list_sessions
 
 router = APIRouter(prefix="/api/v1", tags=["FIR Chat"])
@@ -46,37 +47,22 @@ async def translate_text(
     request: TranslationRequest,
     current_user: User = Depends(get_current_user),
 ):
-    """Translate supported Indian-language voice transcripts into English."""
+    """Translate supported local-language text into English."""
     del current_user
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(
-                "https://translate.googleapis.com/translate_a/single",
-                params={
-                    "client": "gtx",
-                    "sl": request.source_language,
-                    "tl": "en",
-                    "dt": "t",
-                    "q": request.text,
-                },
-            )
-            response.raise_for_status()
-            payload = response.json()
-            translated_text = "".join(
-                part[0] for part in payload[0] if part and part[0]
-            ).strip()
-    except (httpx.HTTPError, ValueError, IndexError, TypeError) as error:
+        translation = translate_text_service(
+            text=request.text,
+            source_language=request.source_language,
+        )
+    except RuntimeError as error:
         raise HTTPException(
             status_code=502,
             detail="Translation service is temporarily unavailable.",
         ) from error
 
-    if not translated_text:
-        raise HTTPException(status_code=422, detail="No translated text was returned.")
-
     return TranslationResponse(
-        translated_text=translated_text,
-        source_language=request.source_language,
+        translated_text=translation["translated_text"],
+        source_language=translation["detected_source_language"],
     )
 
 

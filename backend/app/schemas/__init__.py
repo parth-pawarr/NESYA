@@ -16,7 +16,7 @@ class ChatRequest(BaseModel):
 
 class TranslationRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=5000)
-    source_language: str = Field(..., pattern="^(hi|mr)$")
+    source_language: Optional[str] = Field(None, pattern="^(hi|mr|en|auto)$")
 
 
 class TranslationResponse(BaseModel):

@@ -34,6 +34,10 @@ interface Props {
 
 type VoiceLanguage = 'en' | 'hi' | 'mr';
 
+type TranslationSourceLanguage = 'hi' | 'mr' | 'auto';
+
+const containsDevanagari = (text: string) => /[\u0900-\u097F]/.test(text);
+
 declare global {
   interface Window {
     SpeechRecognition?: new () => SpeechRecognitionLike;
@@ -149,10 +153,13 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
   };
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(e.target.value);
+    const text = e.target.value;
+    setValue(text);
     setVoiceError('');
-    setHasLocalText(false);
-    originalLocalTextRef.current = '';
+    setHasLocalText(containsDevanagari(text));
+    if (!containsDevanagari(text)) {
+      originalLocalTextRef.current = '';
+    }
     const ta = e.target;
     ta.style.height = 'auto';
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
@@ -176,7 +183,10 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
 
   const handleTranslateToEnglish = useCallback(async () => {
     const msg = value.trim();
-    if (!msg || voiceLanguage === 'en') return;
+    if (!msg) return;
+
+    const sourceLanguage: TranslationSourceLanguage =
+      voiceLanguage !== 'en' ? voiceLanguage : 'auto';
 
     // Save the original local language text before translation
     originalLocalTextRef.current = msg;
@@ -184,8 +194,9 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
     setIsTranslating(true);
     setVoiceError('');
     try {
-      const translated = await translateText(msg, voiceLanguage);
+      const translated = await translateText(msg, sourceLanguage);
       setValue(translated);
+      setHasLocalText(false);
     } catch {
       setVoiceError('Could not translate. Please try again.');
     } finally {
@@ -262,7 +273,7 @@ export default function ChatInput({ onSend, disabled = false }: Props) {
             {isListening ? <MicOff size={16} /> : <Mic size={16} />}
           </button>
         )}
-        {hasLocalText && voiceLanguage !== 'en' && (
+        {hasLocalText && (
           <button
             className="translate-btn"
             onClick={handleTranslateToEnglish}
